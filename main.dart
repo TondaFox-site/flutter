@@ -1,568 +1,72 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MojeApp());
+  runApp(const MojeAplikace());
 }
 
-class MojeApp extends StatefulWidget {
-  const MojeApp({super.key});
-
-  @override
-  State<MojeApp> createState() => MojeAppState();
-}
-
-class MojeAppState extends State<MojeApp> {
-  // Nastavení aplikace
-  bool tma = false;
-  bool upozorneni = true;
-  bool zobrazitPanel = true;
-
-  // Výchozí: hodně světle oranžová
-  Color motivBarva = const Color(0xFFFFF3E0);
-
-  // Výchozí barva panelu
-  Color panelBarva = const Color(0xFFC9960A);
+class MojeAplikace extends StatelessWidget {
+  const MojeAplikace({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-
-      themeMode: tma ? ThemeMode.dark : ThemeMode.light,
-
-      theme: ThemeData(
-        brightness: Brightness.light,
-        scaffoldBackgroundColor: motivBarva,
-        colorSchemeSeed: Colors.orange,
-        useMaterial3: true,
-
-        appBarTheme: AppBarTheme(
-          backgroundColor: panelBarva,
-          foregroundColor: Colors.white,
-        ),
-      ),
-
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        useMaterial3: true,
-
-        appBarTheme: AppBarTheme(
-          backgroundColor: panelBarva,
-          foregroundColor: Colors.white,
-        ),
-      ),
-
-      home: const Uvod(),
+    return const MaterialApp(
+      home: DomovskaStranka(),
     );
   }
 }
-class Uvod extends StatelessWidget {
-  const Uvod({super.key});
+
+class DomovskaStranka extends StatelessWidget {
+  const DomovskaStranka({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final app = context.findAncestorStateOfType<MojeAppState>();
-
     return Scaffold(
-      appBar: app?.zobrazitPanel ?? true
-          ? AppBar(
-              title: const Text('Můj Flopík'),
-            )
-          : null,
+      appBar: AppBar(
+        // Nadpis na horní liště
+        title: const Text('Můj flopík'),
+        // Pískově hnědá barva podle kožichu Flopy
+        backgroundColor: const Color(0xFFC29B6D), 
+      ),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.pets,
-                size: 120,
-                color: Colors.orange,
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Můj Flopík',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
+              // Načtení obrázku Flopy z internetu
+              ClipRRect(
+                borderRadius: BorderRadius.circular(15), // Zaoblené rohy
+                child: Image.network(
+                  'https://img-cdn.heureka.group/v1/7aebc812-e5e3-4baa-b4a9-84eabc0e0e8e.jpg?width=350&height=350',
+                  height: 250,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    // OPAVENO: Funkční ikona zvířecí tlapky při výpadku internetu
+                    return const Icon(Icons.pets, size: 100, color: Colors.grey);
+                  },
                 ),
               ),
-              const SizedBox(height: 10),
-              const Text(
-                'Vítej v aplikaci',
-                textAlign: TextAlign.center,
-              ),
               const SizedBox(height: 30),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const Login(),
-                      ),
-                    );
-                  },
-                  child: const Padding(
-                    padding: EdgeInsets.all(15),
-                    child: Text('Přihlásit se'),
-                  ),
+              // Tlačítko Přihlásit se
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFC29B6D), // Stejná barva jako lišta
+                  foregroundColor: Colors.white, // Bílý text
+                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                ),
+                onPressed: () {
+                  // Spodní vyskakovací lišta po kliknutí
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Přihlašování...')),
+                  );
+                },
+                child: const Text(
+                  'Přihlásit se',
+                  style: TextStyle(fontSize: 18),
                 ),
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class Login extends StatefulWidget {
-  const Login({super.key});
-
-  @override
-  State<Login> createState() => _LoginState();
-}
-
-class _LoginState extends State<Login> {
-  final controller = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    final app = context.findAncestorStateOfType<MojeAppState>();
-
-    return Scaffold(
-      appBar: app?.zobrazitPanel ?? true
-          ? AppBar(title: const Text('Přihlášení'))
-          : null,
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: controller,
-              decoration: const InputDecoration(
-                labelText: 'Uživatelské jméno',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.person),
-              ),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  String jmeno = controller.text.trim();
-
-                  if (jmeno.isEmpty) {
-                    jmeno = 'Uživatel';
-                  }
-
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => Menu(jmeno: jmeno),
-                    ),
-                  );
-                },
-                child: const Text('Vstoupit do aplikace'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class Menu extends StatelessWidget {
-  final String jmeno;
-
-  const Menu({
-    super.key,
-    required this.jmeno,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final app = context.findAncestorStateOfType<MojeAppState>();
-
-    return Scaffold(
-      appBar: app?.zobrazitPanel ?? true
-          ? AppBar(title: const Text('Můj Flopík'))
-          : null,
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            Card(
-              child: ListTile(
-                leading: const CircleAvatar(
-                  child: Icon(Icons.person),
-                ),
-                title: Text('Ahoj, $jmeno'),
-                subtitle: const Text('Vítej v aplikaci'),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            ElevatedButton.icon(
-              icon: const Icon(Icons.badge),
-              label: const Text('Flopenka'),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => Flopenka(jmeno: jmeno),
-                  ),
-                );
-              },
-            ),
-
-            const SizedBox(height: 10),
-
-            ElevatedButton.icon(
-              icon: const Icon(Icons.settings),
-              label: const Text('Nastavení'),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const Nastaveni(),
-                  ),
-                );
-              },
-            ),
-
-            const Spacer(),
-
-            TextButton(
-              child: const Text(
-                'Odhlásit se',
-                style: TextStyle(
-                  color: Colors.red,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              onPressed: () async {
-                final odhlasit = await showDialog<bool>(
-                  context: context,
-                  builder: (_) => AlertDialog(
-                    title: const Text('Odhlášení'),
-                    content: const Text(
-                      'Opravdu se chceš odhlásit?',
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () =>
-                            Navigator.pop(context, false),
-                        child: const Text('Ne'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () =>
-                            Navigator.pop(context, true),
-                        child: const Text('Ano'),
-                      ),
-                    ],
-                  ),
-                );
-
-                if (odhlasit == true && context.mounted) {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const Uvod(),
-                    ),
-                    (_) => false,
-                  );
-                }
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class Flopenka extends StatelessWidget {
-  final String jmeno;
-
-  const Flopenka({
-    super.key,
-    required this.jmeno,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final app = context.findAncestorStateOfType<MojeAppState>();
-
-    return Scaffold(
-      appBar: app?.zobrazitPanel ?? true
-          ? AppBar(title: const Text('Flopenka'))
-          : null,
-      body: Center(
-        child: Card(
-          elevation: 6,
-          margin: const EdgeInsets.all(20),
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.badge,
-                  size: 80,
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  'FLOPENKA',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text('JMÉNO: $jmeno'),
-                const SizedBox(height: 5),
-                const Text(
-                  'STATUS: Aktivní',
-                  style: TextStyle(
-                    color: Colors.green,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-class Nastaveni extends StatefulWidget {
-  const Nastaveni({super.key});
-
-  @override
-  State<Nastaveni> createState() => _NastaveniState();
-}
-
-class _NastaveniState extends State<Nastaveni> {
-  @override
-  Widget build(BuildContext context) {
-    final app = context.findAncestorStateOfType<MojeAppState>();
-
-    return Scaffold(
-      appBar: (app?.zobrazitPanel ?? true)
-          ? AppBar(title: const Text('Nastavení'))
-          : null,
-      body: ListView(
-        children: [
-          SwitchListTile(
-            title: const Text('Tmavý režim'),
-            secondary: const Icon(Icons.dark_mode),
-            value: app?.tma ?? false,
-            onChanged: (v) {
-              app?.setState(() {
-                app.tma = v;
-              });
-              setState(() {});
-            },
-          ),
-
-          SwitchListTile(
-            title: const Text('Oznámení'),
-            secondary: const Icon(Icons.notifications),
-            value: app?.upozorneni ?? true,
-            onChanged: (v) {
-              app?.setState(() {
-                app.upozorneni = v;
-              });
-              setState(() {});
-            },
-          ),
-
-          SwitchListTile(
-            title: const Text('Zobrazit horní panel'),
-            secondary: const Icon(Icons.view_agenda),
-            value: app?.zobrazitPanel ?? true,
-            onChanged: (v) {
-              app?.setState(() {
-                app.zobrazitPanel = v;
-              });
-              setState(() {});
-            },
-          ),
-
-          ListTile(
-            leading: const Icon(Icons.palette),
-            title: const Text('Motiv aplikace'),
-            subtitle: const Text('Vybrat barevný motiv'),
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (_) => AlertDialog(
-                  title: const Text('Vyber motiv'),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          app?.setState(() {
-                            app.motivBarva =
-                                const Color(0xFFFFF3E0);
-                          });
-                          Navigator.pop(context);
-                        },
-                        child: const Text(
-                            'Hodně světle oranžová'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          app?.setState(() {
-                            app.motivBarva =
-                                Colors.orange.shade100;
-                          });
-                          Navigator.pop(context);
-                        },
-                        child: const Text('Oranžová'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          app?.setState(() {
-                            app.motivBarva = Colors.white;
-                          });
-                          Navigator.pop(context);
-                        },
-                        child: const Text('Bílá'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          app?.setState(() {
-                            app.motivBarva =
-                                Colors.brown.shade100;
-                          });
-                          Navigator.pop(context);
-                        },
-                        child:
-                            const Text('Tmavě oranžová'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          app?.setState(() {
-                            app.motivBarva =
-                                Colors.lightBlue.shade100;
-                          });
-                          Navigator.pop(context);
-                        },
-                        child:
-                            const Text('Modro-oranžová'),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-
-          ListTile(
-            leading: const Icon(Icons.color_lens),
-            title: const Text('Barva horního panelu'),
-            subtitle:
-                const Text('Výchozí: #C9960A'),
-            onTap: () {
-              app?.setState(() {
-                app.panelBarva =
-                    const Color(0xFFC9960A);
-              });
-
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(
-                const SnackBar(
-                  content: Text(
-                      'Barva panelu nastavena'),
-                ),
-              );
-            },
-          ),
-
-          ListTile(
-            leading: const Icon(Icons.feedback),
-            title: const Text(
-                'Zpětná vazba a podpora'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) =>
-                      const ZpetnaVazba(),
-                ),
-              );
-            },
-          ),
-
-          const Divider(),
-
-          const AboutListTile(
-            icon: Icon(Icons.info_outline),
-            applicationName: 'Můj Flopík',
-            applicationVersion: '1.0.0',
-            applicationLegalese:
-                'Powered by Google, Flutter, Visual Studio Code, Android Studio, GitHub a Firebase.',
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class ZpetnaVazba extends StatelessWidget {
-  const ZpetnaVazba({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final controller = TextEditingController();
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Zpětná vazba'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            const Text(
-              'Napiš nám svůj názor nebo problém.',
-              style: TextStyle(fontSize: 18),
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: controller,
-              maxLines: 6,
-              decoration:
-                  const InputDecoration(
-                labelText: 'Zpráva',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.send),
-              label: const Text('Odeslat'),
-              onPressed: () {
-                ScaffoldMessenger.of(context)
-                    .showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                        'Děkujeme za zpětnou vazbu!'),
-                  ),
-                );
-              },
-            ),
-          ],
         ),
       ),
     );
